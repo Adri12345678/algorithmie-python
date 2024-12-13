@@ -37,14 +37,6 @@ class GestionProduits:
         for p in produits:
             print(f"Nom: {p['nom']}, Prix: {p['prix']}, Quantité: {p['quantite']}")
 
-    def rechercher_produit(self, nom):
-        produits = self.charger_produits()
-        for p in produits:
-            if p['nom'].lower() == nom.lower():
-                print(f"Produit trouvé : {p}")
-                return
-        print("Produit introuvable.")
-
     def trier_produits(self, critere):
         produits = self.charger_produits()
         if critere == "1":
@@ -55,3 +47,21 @@ class GestionProduits:
             produits.sort(key=lambda p: p['nom'].lower())
         self.sauvegarder_produits(produits)
         print("Produits triés avec succès.")
+
+    """def rechercher_produit(self, nom):
+        produits = self.charger_produits()
+        produits.sort(key=lambda p: p['nom'].lower())
+        debut = 0
+        milieu = len(produits)//2
+        fin = len(produits)-1
+        while nom != produits[milieu]:                      ERREUR
+            if nom < produits[milieu]:
+                fin = milieu
+                milieu = len(produits[debut:fin])//2
+
+            elif nom > produits[milieu]:
+                debut = milieu
+                milieu = len(produits[debut:fin])//2
+
+            if len(produits[debut:fin]) == 0:
+                print("Produit introuvable.")"""
