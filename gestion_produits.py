@@ -1,57 +1,57 @@
-import os
+import csv
 
-def charger_produits(fichier):
-    if not os.path.exists(fichier):
-        return []
-    with open(fichier, "r") as f:
-        return [eval(ligne.strip()) for ligne in f.readlines()]
+class GestionProduits:
+    def __init__(self, fichier_csv):
+        self.fichier_csv = fichier_csv
 
-def sauvegarder_produits(fichier, produits):
-    with open(fichier, "w") as f:
-        for produit in produits:
-            f.write(f"{produit}\n")
+    def charger_produits(self):
+        produits = []
+        with open(self.fichier_csv, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                row['prix'] = float(row['prix'])  # Convertir le prix en float
+                row['quantite'] = int(row['quantite'])  # Convertir la quantité en int
+                produits.append(row)
+        return produits
 
-def afficher_produits(produits):
-    if not produits:
-        print("Aucun produit disponible.")
-    else:
-        for produit in produits:
-            print(f"Nom : {produit['nom']}, Prix : {produit['prix']}, Quantité : {produit['quantite']}")
+    def sauvegarder_produits(self, produits):
+        with open(self.fichier_csv, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["nom", "prix", "quantite"])
+            writer.writeheader()
+            writer.writerows(produits)
 
-def ajouter_produit(produits):
-    nom = input("Nom du produit : ")
-    prix = float(input("Prix du produit : "))
-    quantite = int(input("Quantité : "))
-    produits.append({"nom": nom, "prix": prix, "quantite": quantite})
-    print(f"Produit '{nom}' ajouté avec succès !")
+    def ajouter_produit(self, nom, prix, quantite):
+        produits = self.charger_produits()
+        produits.append({"nom": nom, "prix": prix, "quantite": quantite})
+        self.sauvegarder_produits(produits)
+        print(f"Produit '{nom}' ajouté avec succès.")
 
-def supprimer_produit(produits):
-    nom = input("Nom du produit à supprimer : ")
-    for produit in produits:
-        if produit['nom'].lower() == nom.lower():
-            produits.remove(produit)
-            print(f"Produit '{nom}' supprimé.")
-            return
-    print(f"Produit '{nom}' non trouvé.")
+    def supprimer_produit(self, nom):
+        produits = self.charger_produits()
+        produits = [p for p in produits if p['nom'] != nom]
+        self.sauvegarder_produits(produits)
+        print(f"Produit '{nom}' supprimé avec succès.")
 
-def rechercher_produit(produits):
-    nom = input("Nom du produit à rechercher : ")
-    for produit in produits:
-        if produit['nom'].lower() == nom.lower():
-            print(f"Produit trouvé : {produit}")
-            return
-    print(f"Produit '{nom}' non trouvé.")
+    def afficher_produits(self):
+        produits = self.charger_produits()
+        for p in produits:
+            print(f"Nom: {p['nom']}, Prix: {p['prix']}, Quantité: {p['quantite']}")
 
-def trier_produits(produits):
-    print("1. Trier par prix (croissant)")
-    print("2. Trier par quantité (croissant)")
-    choix = input("Choisissez une option de tri : ")
-    
-    if choix == "1":
-        produits.sort(key=lambda x: x['prix'])
-        print("Liste triée par prix.")
-    elif choix == "2":
-        produits.sort(key=lambda x: x['quantite'])
-        print("Liste triée par quantité.")
-    else:
-        print("Choix invalide.")
+    def rechercher_produit(self, nom):
+        produits = self.charger_produits()
+        for p in produits:
+            if p['nom'].lower() == nom.lower():
+                print(f"Produit trouvé : {p}")
+                return
+        print("Produit introuvable.")
+
+    def trier_produits(self, critere):
+        produits = self.charger_produits()
+        if critere == "1":
+            produits.sort(key=lambda p: p['prix'])
+        elif critere == "2":
+            produits.sort(key=lambda p: p['quantite'])
+        elif critere == "3":
+            produits.sort(key=lambda p: p['nom'].lower())
+        self.sauvegarder_produits(produits)
+        print("Produits triés avec succès.")
