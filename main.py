@@ -54,26 +54,39 @@ def menu_produits():
 
         if choix == "1":
             gestionnaire.afficher_produits()
+
         elif choix == "2":
-            nom = input("Nom du produit : ")
-            prix = float(input("Prix du produit : "))
-            quantite = int(input("Quantité : "))
-            gestionnaire.ajouter_produit(nom, prix, quantite)
+            gestionnaire.ajouter_produit()
+
         elif choix == "3":
-            nom = input("Nom du produit à supprimer : ")
-            gestionnaire.supprimer_produit(nom)
+            gestionnaire.supprimer_produit()
+
         elif choix == "4":
-            nom = input("Nom du produit à rechercher : ")
-            gestionnaire.rechercher_produit(nom)
+            print("1. recherche normale")
+            print("2. recherche binaire")
+            algo = input("Choisissez un algorithme de recherche : ")
+            if algo == '1':
+                gestionnaire.rechercher_produit()
+            elif algo == '2':
+                gestionnaire.recherche_binaire()
+            else:
+                print("Algorithme invalide.")
+
         elif choix == "5":
-            print("1. Trier par prix")
-            print("2. Trier par quantité")
-            print("3. Trier par nom")
-            critere = input("Choisissez un critère de tri : ")
-            gestionnaire.trier_produits(critere)
+            print("1. trier par tri rapide")
+            print("2. trier par tri à bulle")
+            algo = input("Choisissez un algorithme de tri : ")
+            if algo == '1':
+                gestionnaire.tri_rapide()
+            elif algo == '2':
+                gestionnaire.tri_bulles()
+            else:
+                print("Algorithme invalide.")
+
         elif choix == "6":
             print("Retour au menu principal...")
             break
+
         else:
             print("Choix invalide, essayez encore.")
 
