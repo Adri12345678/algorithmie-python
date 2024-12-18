@@ -15,31 +15,31 @@ def menu_utilisateur():
         choix = input("Entrez votre choix : ")
 
         if choix == "1":
-            nom = input("Entrez le nom de l'utilisateur : ")
-            mot_de_passe = input("Entrez le mot de passe : ")
-            gestion_utilisateurs.ajouter_utilisateur(nom, mot_de_passe)
+            gestion_utilisateurs.ajouter_utilisateur()
+
         elif choix == "2":
-            nom = input("Entrez le nom de l'utilisateur à supprimer : ")
-            gestion_utilisateurs.supprimer_utilisateur(nom)
+            gestion_utilisateurs.supprimer_utilisateur()
+
         elif choix == "3":
             mot_de_passe = input("Entrez le mot de passe à vérifier : ")
             if gestion_utilisateurs.verifier_compromis(mot_de_passe):
                 print("⚠️ Le mot de passe est compromis !")
             else:
                 print("✅ Le mot de passe est sûr.")
+
         elif choix == "4":
-            print("Liste des utilisateurs :")
-            for utilisateur in gestion_utilisateurs.utilisateurs:
-                print(f"- {utilisateur['nom_utilisateur']}")
+            gestion_utilisateurs.afficher_utilisateurs()
+
         elif choix == "5":
             print("Retour au menu principal...")
             break
+
         else:
             print("Choix invalide. Veuillez réessayer.")
 
 
 def menu_produits():
-    gestionnaire = GestionProduits("produits.csv")
+    gestion_produits = GestionProduits("produits.csv")
 
     while True:
         print("\n--- Menu Gestion des Produits ---")
@@ -53,22 +53,22 @@ def menu_produits():
         choix = input("Choisissez une option : ")
 
         if choix == "1":
-            gestionnaire.afficher_produits()
+            gestion_produits.afficher_produits()
 
         elif choix == "2":
-            gestionnaire.ajouter_produit()
+            gestion_produits.ajouter_produit()
 
         elif choix == "3":
-            gestionnaire.supprimer_produit()
+            gestion_produits.supprimer_produit()
 
         elif choix == "4":
             print("1. recherche normale")
             print("2. recherche binaire")
             algo = input("Choisissez un algorithme de recherche : ")
             if algo == '1':
-                gestionnaire.rechercher_produit()
+                gestion_produits.rechercher_produit()
             elif algo == '2':
-                gestionnaire.recherche_binaire()
+                gestion_produits.recherche_binaire()
             else:
                 print("Algorithme invalide.")
 
@@ -77,9 +77,9 @@ def menu_produits():
             print("2. trier par tri à bulle")
             algo = input("Choisissez un algorithme de tri : ")
             if algo == '1':
-                gestionnaire.tri_rapide()
+                gestion_produits.tri_rapide()
             elif algo == '2':
-                gestionnaire.tri_bulles()
+                gestion_produits.tri_bulles()
             else:
                 print("Algorithme invalide.")
 
@@ -116,3 +116,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
