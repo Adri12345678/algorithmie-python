@@ -44,6 +44,9 @@ class GestionProduits:
         print("Produit non trouvé.")
 
     def afficher_produits(self):
+        if not self.produits:
+            print("La liste des produits est vide.")
+            return
         for p in self.produits:
             print(f"Nom: {p['nom']}, Prix: {p['prix']}, Quantité: {p['quantite']}")
 

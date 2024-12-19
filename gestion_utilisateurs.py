@@ -22,22 +22,33 @@ class GestionUtilisateurs:
         return hachage
 
     def ajouter_utilisateur(self):
-        nom_utilisateur = input("Entrez le nom de l'utilisateur : ")
+        nom_utilisateur = input("Entrez le nom d'utilisateur : ")
         mot_de_passe = input("Entrez le mot de passe : ")
         if self.verifier_compromis(mot_de_passe):
             print("⚠️ Le mot de passe est compromis. Choisissez un autre mot de passe.")
             return 
         mot_de_passe_hache = self.hacher_mot_de_passe(mot_de_passe)
         self.utilisateurs.append({"nom_utilisateur": nom_utilisateur, "mot_de_passe": mot_de_passe_hache})
-        print(f"Utilisateur '{nom_utilisateur}' ajouté avec succès.")
         self.utilisateurs.sort(key=lambda p: p['nom_utilisateur'].lower())
         self.sauvegarder_utilisateurs()
+        print(f"Compte '{nom_utilisateur}' créé avec succès.")
+        fichier_produits = f"produits_{nom_utilisateur}.csv"
+        with open(fichier_produits, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["nom", "prix", "quantite"])
+            writer.writeheader()
     
     def supprimer_utilisateur(self):
         nom_utilisateur = input("Entrez le nom de l'utilisateur à supprimer : ")
         self.utilisateurs = [u for u in self.utilisateurs if u['nom_utilisateur'] != nom_utilisateur]
         print(f"Utilisateur '{nom_utilisateur}' supprimé.")
         self.sauvegarder_utilisateurs()
+
+    def verifier_utilisateur(self, nom_utilisateur, mot_de_passe):
+        mot_de_passe_hache = self.hacher_mot_de_passe(mot_de_passe)
+        for utilisateur in self.utilisateurs:
+            if utilisateur["nom_utilisateur"] == nom_utilisateur and utilisateur["mot_de_passe"] == mot_de_passe_hache:
+                return True
+        return False
 
     def verifier_compromis(self, mot_de_passe):
         hachage_mot_de_passe = self.hacher_mot_de_passe(mot_de_passe)

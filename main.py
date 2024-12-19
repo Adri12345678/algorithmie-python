@@ -1,7 +1,8 @@
 from gestion_produits import GestionProduits
 from gestion_utilisateurs import GestionUtilisateurs
 
-def menu_utilisateur():
+
+def menu_admin():
     gestion_utilisateurs = GestionUtilisateurs()
 
     while True:
@@ -38,12 +39,12 @@ def menu_utilisateur():
             print("Choix invalide. Veuillez réessayer.")
 
 
-def menu_produits():
-    gestion_produits = GestionProduits("produits.csv")
+def menu_utilisateurs(utilisateur):
+    gestion_produits = GestionProduits(f"produits_{utilisateur}.csv")
 
     while True:
-        print("\n--- Menu Gestion des Produits ---")
-        print("1. Afficher la liste des produits")
+        print(f"\n--- Menu Gestion des Produits pour {utilisateur} ---")
+        print("\n1. Afficher la liste des produits")
         print("2. Ajouter un produit")
         print("3. Supprimer un produit")
         print("4. Rechercher un produit")
@@ -84,32 +85,41 @@ def menu_produits():
                 print("Algorithme invalide.")
 
         elif choix == "6":
-            print("Retour au menu principal...")
+            print("Au revoir !")
             break
 
         else:
             print("Choix invalide, essayez encore.")
 
 
-def afficher_menu():
-    print("\n--- Menu Principal ---")
-    print("1. Gestion des produits")
-    print("2. Gestion des utilisateurs")
-    print("3. Quitter")
-
 def main():
     
+    gestion_utilisateurs = GestionUtilisateurs()
+    print("\n--- Bienvenue dans le Gestionnaire ---")
+    
     while True:
-        afficher_menu()
-        choix = input("Choisissez une option : ")
+        print("\n1. Se connecter")
+        print("2. Créer un compte")
+        print("3. Quitter")
         
+        choix = input("\nVotre choix : ")
         if choix == "1":
-            menu_produits()
+            nom_utilisateur = input("Nom d'utilisateur : ")
+            mot_de_passe = input("Mot de passe : ")
+            if gestion_utilisateurs.verifier_utilisateur(nom_utilisateur, mot_de_passe):
+                print(f"Bienvenue, {nom_utilisateur} !")
+                if nom_utilisateur == "admin":
+                    menu_admin()
+                else:
+                    menu_utilisateurs(utilisateur=nom_utilisateur)
+                break
+            else:
+                print("❌ Nom d'utilisateur ou mot de passe incorrect.")
         elif choix == "2":
-            menu_utilisateur()
+            gestion_utilisateurs.ajouter_utilisateur()
         elif choix == "3":
             print("Au revoir !")
-            break
+            exit()
         else:
             print("Choix invalide. Veuillez réessayer.")
 
