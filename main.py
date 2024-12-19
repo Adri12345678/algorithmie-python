@@ -49,7 +49,7 @@ def menu_utilisateurs(utilisateur):
         print("3. Supprimer un produit")
         print("4. Rechercher un produit")
         print("5. Trier la liste des produits")
-        print("6. Quitter le menu produits")
+        print("6. Quitter")
 
         choix = input("Choisissez une option : ")
 

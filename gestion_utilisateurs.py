@@ -1,5 +1,6 @@
 import csv
 import hashlib
+import requests
 
 class GestionUtilisateurs:
     def __init__(self, fichier_utilisateurs="utilisateurs.csv"):
@@ -51,14 +52,34 @@ class GestionUtilisateurs:
         return False
 
     def verifier_compromis(self, mot_de_passe):
-        hachage_mot_de_passe = self.hacher_mot_de_passe(mot_de_passe)
-        
-        with open("hachages_compromis.csv", mode="r") as f:
-            lecteur_csv = csv.reader(f)
-            for ligne in lecteur_csv:
-                if ligne[1] == hachage_mot_de_passe:
-                    return True
-        return False
+        """
+        Vérifie si un mot de passe est compromis en utilisant l'API Have I Been Pwned.
+        Retourne True si compromis, sinon False.
+        """
+        # Générer le hash SHA-1 du mot de passe
+        hash_sha1 = hashlib.sha1(mot_de_passe.encode('utf-8')).hexdigest().upper()
+
+        # k-Anonymity : Envoi uniquement les 5 premiers caractères du hash
+        prefix = hash_sha1[:5]
+        suffix = hash_sha1[5:]
+        url = f"https://api.pwnedpasswords.com/range/{prefix}"
+
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                # Parcours des résultats retournés
+                hashes = response.text.splitlines()
+                for h in hashes:
+                    h_suffix, count = h.split(':')
+                    if h_suffix == suffix:
+                        return True
+                return False
+            else:
+                print(f"Erreur lors de la requête à l'API HIBP : {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"Erreur de connexion à l'API HIBP : {e}")
+            return False
     
     def afficher_utilisateurs(self):
         self.utilisateurs.sort(key=lambda p: p['nom_utilisateur'].lower())
