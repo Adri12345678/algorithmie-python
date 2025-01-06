@@ -11,7 +11,7 @@ def menu_admin():
         print("2. Supprimer un utilisateur")
         print("3. Vérifier si un mot de passe est compromis")
         print("4. Afficher la liste des utilisateurs")
-        print("5. Quitter le menu utilisateur")
+        print("5. Quitter")
 
         choix = input("Entrez votre choix : ")
 
@@ -32,7 +32,7 @@ def menu_admin():
             gestion_utilisateurs.afficher_utilisateurs()
 
         elif choix == "5":
-            print("Retour au menu principal...")
+            print("Au revoir !")
             break
 
         else:
