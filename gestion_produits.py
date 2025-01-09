@@ -1,4 +1,6 @@
 import csv
+import tkinter as tk
+from tkinter import messagebox
 
 class GestionProduits:
     def __init__(self, fichier_csv):
@@ -29,11 +31,26 @@ class GestionProduits:
         self.enregistrer_produits(self.produits)
         print(f"Produit '{nom}' ajouté avec succès.")
 
+    def ajouter_produit_console(self, nom, prix, quantite):
+        self.produits.append({"nom": nom, "prix": prix, "quantite": quantite})
+        self.enregistrer_produits(self.produits)
+        print(f"Produit '{nom}' ajouté avec succès.")
+
     def supprimer_produit(self):
         nom = input("Nom du produit à supprimer : ")
         self.produits = [p for p in self.produits if p['nom'] != nom]
         self.enregistrer_produits(self.produits)
         print(f"Produit '{nom}' supprimé avec succès.")
+
+    def supprimer_produit_console(self, nom):
+        produit_existe = any(p["nom"] == nom for p in self.produits)
+        if not produit_existe:
+            print(f"Le produit '{nom}' n'existe pas.")
+            return False
+        self.produits = [p for p in self.produits if p["nom"] != nom]
+        self.enregistrer_produits(self.produits)
+        print(f"Produit '{nom}' supprimé avec succès.")
+        return True
 
     def rechercher_produit(self):
         nom = input("Nom du produit à rechercher : ")
@@ -45,10 +62,31 @@ class GestionProduits:
 
     def afficher_produits(self):
         if not self.produits:
+            messagebox.showinfo("Aucun produit", "Aucun produit disponible.")
+            return
+        produits = "\n".join([f"{p['nom']} - Prix: {p['prix']}€ - Quantité: {p['quantite']}" for p in self.gestion_produits.produits])
+        messagebox.showinfo("Produits", produits)
+
+    def afficher_produits_console(self):
+        if not self.produits:
             print("La liste des produits est vide.")
             return
         for p in self.produits:
-            print(f"Nom: {p['nom']}, Prix: {p['prix']}, Quantité: {p['quantite']}")
+            print(f"Nom: {p['nom']}, Prix: {p['prix']}€, Quantité: {p['quantite']}")
+
+    def effectuer_tri(self, critere):
+        if not self.gestion_produits.produits:
+            messagebox.showinfo("Aucun produit", "Il n'y a pas de produits à trier.")
+            return
+
+        if critere == "nom":
+            self.gestion_produits.produits.sort(key=lambda p: p['nom'])
+        elif critere == "prix":
+            self.gestion_produits.produits.sort(key=lambda p: float(p['prix']))
+        elif critere == "quantite":
+            self.gestion_produits.produits.sort(key=lambda p: int(p['quantite']))
+
+        self.afficher_produits()  # Mise à jour de l'affichage après tri
 
     def tri_bulles(self):
         print("- prix")

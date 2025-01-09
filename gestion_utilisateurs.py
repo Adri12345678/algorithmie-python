@@ -37,6 +37,22 @@ class GestionUtilisateurs:
         with open(fichier_produits, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=["nom", "prix", "quantite"])
             writer.writeheader()
+
+    
+    def ajouter_utilisateur_console(self, nom_utilisateur, mot_de_passe):
+        if self.verifier_compromis(mot_de_passe):
+            print(f"⚠️ Le mot de passe pour '{nom_utilisateur}' est compromis.")
+            return False
+        mot_de_passe_hache = self.hacher_mot_de_passe(mot_de_passe)
+        self.utilisateurs.append({"nom_utilisateur": nom_utilisateur, "mot_de_passe": mot_de_passe_hache})
+        self.utilisateurs.sort(key=lambda p: p['nom_utilisateur'].lower())
+        self.sauvegarder_utilisateurs()
+        print(f"Utilisateur '{nom_utilisateur}' ajouté avec succès.")
+        fichier_produits = f"produits_{nom_utilisateur}.csv"
+        with open(fichier_produits, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["nom", "prix", "quantite"])
+            writer.writeheader()
+        return True
     
     def supprimer_utilisateur(self):
         nom_utilisateur = input("Entrez le nom de l'utilisateur à supprimer : ")
@@ -50,6 +66,16 @@ class GestionUtilisateurs:
             if utilisateur["nom_utilisateur"] == nom_utilisateur and utilisateur["mot_de_passe"] == mot_de_passe_hache:
                 return True
         return False
+    
+    def supprimer_utilisateur_console(self, nom_utilisateur):
+        utilisateur_existe = any(u["nom_utilisateur"] == nom_utilisateur for u in self.utilisateurs)
+        if not utilisateur_existe:
+            print(f"L'utilisateur '{nom_utilisateur}' n'existe pas.")
+            return False
+        self.utilisateurs = [u for u in self.utilisateurs if u["nom_utilisateur"] != nom_utilisateur]
+        self.sauvegarder_utilisateurs()
+        print(f"Utilisateur '{nom_utilisateur}' supprimé.")
+        return True
 
     def verifier_compromis(self, mot_de_passe):
         """

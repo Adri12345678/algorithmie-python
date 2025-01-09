@@ -1,6 +1,6 @@
 from gestion_produits import GestionProduits
 from gestion_utilisateurs import GestionUtilisateurs
-
+from interface import InterfaceGraphique
 
 def menu_admin():
     gestion_utilisateurs = GestionUtilisateurs()
@@ -93,35 +93,11 @@ def menu_utilisateurs(utilisateur):
 
 
 def main():
-    
     gestion_utilisateurs = GestionUtilisateurs()
-    print("\n--- Bienvenue dans le Gestionnaire ---")
+    gestion_produits = None
     
-    while True:
-        print("\n1. Se connecter")
-        print("2. Créer un compte")
-        print("3. Quitter")
-        
-        choix = input("\nVotre choix : ")
-        if choix == "1":
-            nom_utilisateur = input("Nom d'utilisateur : ")
-            mot_de_passe = input("Mot de passe : ")
-            if gestion_utilisateurs.verifier_utilisateur(nom_utilisateur, mot_de_passe):
-                print(f"Bienvenue, {nom_utilisateur} !")
-                if nom_utilisateur == "admin":
-                    menu_admin()
-                else:
-                    menu_utilisateurs(utilisateur=nom_utilisateur)
-                break
-            else:
-                print("❌ Nom d'utilisateur ou mot de passe incorrect.")
-        elif choix == "2":
-            gestion_utilisateurs.ajouter_utilisateur()
-        elif choix == "3":
-            print("Au revoir !")
-            exit()
-        else:
-            print("Choix invalide. Veuillez réessayer.")
+    app = InterfaceGraphique(gestion_utilisateurs, gestion_produits)
+    app.run()
 
 
 if __name__ == "__main__":
