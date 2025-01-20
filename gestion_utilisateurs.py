@@ -1,6 +1,6 @@
 import csv
 import hashlib
-import requests
+
 
 class GestionUtilisateurs:
     def __init__(self, fichier_utilisateurs="utilisateurs.csv"):
@@ -8,115 +8,52 @@ class GestionUtilisateurs:
         self.utilisateurs = self.charger_utilisateurs()
 
     def charger_utilisateurs(self):
+        """Charge les utilisateurs depuis un fichier CSV."""
         utilisateurs = []
         try:
-            with open(self.fichier_utilisateurs, mode="r") as f:
-                lecteur_csv = csv.DictReader(f)
-                for ligne in lecteur_csv:
-                    utilisateurs.append(ligne)
+            with open(self.fichier_utilisateurs, "r") as fichier:
+                lecteur = csv.DictReader(fichier)
+                for ligne in lecteur:
+                    utilisateurs.append({
+                        "nom_utilisateur": ligne["nom_utilisateur"],
+                        "mot_de_passe": ligne["mot_de_passe"],
+                    })
         except FileNotFoundError:
-            print(f"Le fichier {self.fichier_utilisateurs} n'existe pas encore.")
+            pass
         return utilisateurs
 
-    def hacher_mot_de_passe(self, mot_de_passe):
-        hachage = hashlib.sha256(mot_de_passe.encode()).hexdigest()
-        return hachage
-
-    def ajouter_utilisateur(self):
-        nom_utilisateur = input("Entrez le nom d'utilisateur : ")
-        mot_de_passe = input("Entrez le mot de passe : ")
-        if self.verifier_compromis(mot_de_passe):
-            print("⚠️ Le mot de passe est compromis. Choisissez un autre mot de passe.")
-            return 
-        mot_de_passe_hache = self.hacher_mot_de_passe(mot_de_passe)
-        self.utilisateurs.append({"nom_utilisateur": nom_utilisateur, "mot_de_passe": mot_de_passe_hache})
-        self.utilisateurs.sort(key=lambda p: p['nom_utilisateur'].lower())
-        self.sauvegarder_utilisateurs()
-        print(f"Compte '{nom_utilisateur}' créé avec succès.")
-        fichier_produits = f"produits_{nom_utilisateur}.csv"
-        with open(fichier_produits, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=["nom", "prix", "quantite"])
+    def enregistrer_utilisateurs(self):
+        """Enregistre les utilisateurs dans un fichier CSV."""
+        with open(self.fichier_utilisateurs, "w", newline="") as fichier:
+            champs = ["nom_utilisateur", "mot_de_passe"]
+            writer = csv.DictWriter(fichier, fieldnames=champs)
             writer.writeheader()
+            writer.writerows(self.utilisateurs)
 
-    
-    def ajouter_utilisateur_console(self, nom_utilisateur, mot_de_passe):
-        if self.verifier_compromis(mot_de_passe):
-            print(f"⚠️ Le mot de passe pour '{nom_utilisateur}' est compromis.")
-            return False
-        mot_de_passe_hache = self.hacher_mot_de_passe(mot_de_passe)
-        self.utilisateurs.append({"nom_utilisateur": nom_utilisateur, "mot_de_passe": mot_de_passe_hache})
-        self.utilisateurs.sort(key=lambda p: p['nom_utilisateur'].lower())
-        self.sauvegarder_utilisateurs()
-        print(f"Utilisateur '{nom_utilisateur}' ajouté avec succès.")
-        fichier_produits = f"produits_{nom_utilisateur}.csv"
-        with open(fichier_produits, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=["nom", "prix", "quantite"])
-            writer.writeheader()
+    def ajouter_utilisateur(self, nom_utilisateur, mot_de_passe):
+        """Ajoute un utilisateur avec mot de passe hashé."""
+        for utilisateur in self.utilisateurs:
+            if utilisateur["nom_utilisateur"] == nom_utilisateur:
+                return False  # L'utilisateur existe déjà
+        hash_mdp = hashlib.sha256(mot_de_passe.encode()).hexdigest()
+        self.utilisateurs.append({
+            "nom_utilisateur": nom_utilisateur,
+            "mot_de_passe": hash_mdp,
+        })
+        self.enregistrer_utilisateurs()
         return True
-    
-    def supprimer_utilisateur(self):
-        nom_utilisateur = input("Entrez le nom de l'utilisateur à supprimer : ")
-        self.utilisateurs = [u for u in self.utilisateurs if u['nom_utilisateur'] != nom_utilisateur]
-        print(f"Utilisateur '{nom_utilisateur}' supprimé.")
-        self.sauvegarder_utilisateurs()
 
     def verifier_utilisateur(self, nom_utilisateur, mot_de_passe):
-        mot_de_passe_hache = self.hacher_mot_de_passe(mot_de_passe)
+        """Vérifie si un utilisateur existe et si le mot de passe est correct."""
+        hash_mdp = hashlib.sha256(mot_de_passe.encode()).hexdigest()
         for utilisateur in self.utilisateurs:
-            if utilisateur["nom_utilisateur"] == nom_utilisateur and utilisateur["mot_de_passe"] == mot_de_passe_hache:
+            if utilisateur["nom_utilisateur"] == nom_utilisateur and utilisateur["mot_de_passe"] == hash_mdp:
                 return True
         return False
-    
-    def supprimer_utilisateur_console(self, nom_utilisateur):
-        utilisateur_existe = any(u["nom_utilisateur"] == nom_utilisateur for u in self.utilisateurs)
-        if not utilisateur_existe:
-            print(f"L'utilisateur '{nom_utilisateur}' n'existe pas.")
-            return False
-        self.utilisateurs = [u for u in self.utilisateurs if u["nom_utilisateur"] != nom_utilisateur]
-        self.sauvegarder_utilisateurs()
-        print(f"Utilisateur '{nom_utilisateur}' supprimé.")
-        return True
 
-    def verifier_compromis(self, mot_de_passe):
-        """
-        Vérifie si un mot de passe est compromis en utilisant l'API Have I Been Pwned.
-        Retourne True si compromis, sinon False.
-        """
-        # Générer le hash SHA-1 du mot de passe
-        hash_sha1 = hashlib.sha1(mot_de_passe.encode('utf-8')).hexdigest().upper()
-
-        # k-Anonymity : Envoi uniquement les 5 premiers caractères du hash
-        prefix = hash_sha1[:5]
-        suffix = hash_sha1[5:]
-        url = f"https://api.pwnedpasswords.com/range/{prefix}"
-
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                # Parcours des résultats retournés
-                hashes = response.text.splitlines()
-                for h in hashes:
-                    h_suffix, count = h.split(':')
-                    if h_suffix == suffix:
-                        return True
-                return False
-            else:
-                print(f"Erreur lors de la requête à l'API HIBP : {response.status_code}")
-                return False
-        except Exception as e:
-            print(f"Erreur de connexion à l'API HIBP : {e}")
-            return False
-    
-    def afficher_utilisateurs(self):
-        self.utilisateurs.sort(key=lambda p: p['nom_utilisateur'].lower())
-        self.sauvegarder_utilisateurs()
-        print("Liste des utilisateurs :")
-        for utilisateur in self.utilisateurs:
-            print(f"- {utilisateur['nom_utilisateur']}")
-    
-    def sauvegarder_utilisateurs(self):
-        with open(self.fichier_utilisateurs, mode="w", newline="") as f:
-            champs = ["nom_utilisateur", "mot_de_passe"]
-            ecrivain_csv = csv.DictWriter(f, fieldnames=champs)
-            ecrivain_csv.writeheader()
-            ecrivain_csv.writerows(self.utilisateurs)
+    def supprimer_utilisateur(self, nom_utilisateur):
+        """Supprime un utilisateur s'il existe."""
+        self.utilisateurs = [
+            u for u in self.utilisateurs if u["nom_utilisateur"] != nom_utilisateur
+        ]
+        self.enregistrer_utilisateurs()
